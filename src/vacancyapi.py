@@ -21,11 +21,11 @@ class HeadHunterAPI(VacancyAPI):
     Класс для работы с API hh.ru
     """
 
-    def __init__(self):
+    def __init__(self, url='https://api.hh.ru/vacancies'):
         """
         Инициализация объекта класса
         """
-        self.url = 'https://api.hh.ru/vacancies'
+        self.url = url
 
 
     def getting_api(self, keyword: str, location: str) -> None:
@@ -48,11 +48,11 @@ class SuperJob(VacancyAPI):
     Класс для работы с API superjob.ru
     """
 
-    def __init__(self):
+    def __init__(self, url='https://api.superjob.ru/2.0/vacancies'):
         """
         Инициализация объекта класса
         """
-        self.url = 'https://api.superjob.ru/2.0/vacancies'
+        self.url = url
         self.headers = {
         'X-Api-App-Id': 'v3.r.137595387.3b45cea28efc091e14131b2b7a5dd6b79ba08e14.e9f7b295caf7527e945323cee11e7bb4e80eb9f3'
         }
@@ -71,3 +71,4 @@ class SuperJob(VacancyAPI):
             return response.json()
         else:
             print(f'Ошибка при выполнении запроса: {response.status_code}')
+
