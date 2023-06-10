@@ -9,6 +9,8 @@ packages = [{include = "oop_course_project"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.31.0"
+pytest = "^7.3.1"
+pytest-cov = "^4.1.0"
 
 
 [build-system]
