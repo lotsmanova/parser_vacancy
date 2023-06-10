@@ -1,44 +1,65 @@
+from src.vacancy import Vacancy
 
 
-def top_vacancies(vacancy, num: int) -> [dict]:
+def get_vacancies_hh(vacancy: list[dict]):
+    """
+    Форматирование объектов hh.ru
+    """
+    obj_vacancy = [{
+        'title': item['name'],
+        'link': item['alternate_url'],
+        'salary': item['salary']['from'] if item.get('salary') else '0',
+        'requirements': item['snippet']['requirement'],
+        'town': item['area']['name']
+    } for item in vacancy]
+    return obj_vacancy
+
+
+def get_vacancies_sj(vacancy: list[dict]):
+    """
+    Форматирование объектов SuperJob
+    """
+    obj_vacancy = [{
+        'title': item['profession'],
+        'link': item['link'],
+        'salary': item['payment_from'],
+        'requirements': item['candidat'],
+        'town': item['town']['title']
+    } for item in vacancy]
+    return obj_vacancy
+
+
+def top_vacancies(vacancy: list[Vacancy], num: int) -> list[Vacancy]:
     """
     Топ вакансий
     """
     return vacancy[:num]
 
 
-def filtered_vacancies(vacancy, list_param) -> [dict]:
+def filtered_vacancies(vacancy: list[Vacancy], list_param: list) -> list[Vacancy]:
     """
     Фильтрация вакансий по ключевым словам
     """
     res = []
     for v in vacancy:
         for p in list_param:
-            if p in [v['title'],
-                     v['link'],
-                     v['salary'],
-                     v['requirements'],
-                     v['town']]:
+            if p in v.town:
                 res.append(v)
-        else:
-            print('Совпадений не найдено')
     return res
 
 
-def sorted_vacancies(vacancy) -> [dict]:
+def sorted_vacancies(vacancy: list[Vacancy]) -> list[Vacancy]:
     """
     Сортировка вакансий по ЗП
-    :param vacancy
-    :return:
     """
-    v_sorted = sorted(vacancy, key=lambda d: d['salary'])
-    return v_sorted
+
+    return sorted(vacancy, reverse=True)
 
 
-def print_vacancies(res) -> str:
+def print_vacancies(res: list[Vacancy]) -> None:
     """
-    Вывод вакансий в читабельном для пользователя виде
-    :param res: список вакансий
-    :return: str
+    Вывод вакансий в удобном для пользователя виде
     """
-    pass
+
+    for i, v in enumerate(res):
+        print(f"{i+1}. Название: {v.title}, ссылка: {v.link}, зарплата от {v.salary}, город: {v.town}")

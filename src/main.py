@@ -1,60 +1,55 @@
 from src.vacancy import Vacancy
-from src.filesaver import JSONSaver, CSVSaver
+from src.filesaver import JSONSaver
 from src.vacancyapi import HeadHunterAPI, SuperJobAPI
-from src.func_user import top_vacancies, filtered_vacancies, sorted_vacancies, print_vacancies
+from src.func_user import top_vacancies, filtered_vacancies, sorted_vacancies, print_vacancies, get_vacancies_hh, get_vacancies_sj
+import json
+
 
 def main():
-    platform = input('Выберите платформу поиска вакансий. 1 - HeadHunter, 2 - SuperJob: ')
-    # keyword = input('Введите ключевое слово для поиска, например, Python: ')
-    if platform == '1':
-        hh_api = HeadHunterAPI()
-        hh_vacancies = hh_api.get_vacancies(keyword='Python')
-        for item in hh_vacancies:
-            title = item['name']
-            link = f'https://nevinnomyssk.hh.ru/vacancy/{item["id"]}'
-            requarements = item['snippet']['requirement']
-            town = item['area']['name']
-            if item['salary'] is not None:
-                salary_from = item['salary']['from']
-                salary_to = item['salary']['to']
-                if salary_from is not None and salary_to is not None:
-                    salary = f"{salary_from}-{salary_to}"
-                else:
-                    salary = None
-                vacancy = Vacancy(title, link, salary, requarements, town)
-                if vacancy.validate() is True:
-                    js_saver = JSONSaver()
-                    js_saver.add_vacancy(vacancy)
-                    csv_saver = CSVSaver()
-                    csv_saver.add_vacancy(vacancy)
-                else:
-                    print('Error')
-    else:
-        sj_api = SuperJobAPI()
-        sj_vacancies = sj_api.get_vacancies(keyword='Python')
-        for item in sj_vacancies:
-            title = item['profession']
-            link = item['link']
-            requarements = item['candidat']
-            town = item['town']['title']
-            salary_from = item['payment_from']
-            salary_to = item['payment_to']
-            if salary_from is not None and salary_to is not None:
-                salary = f"{salary_from}-{salary_to}"
-            else:
-                salary = None
-            vacancy = Vacancy(title, link, salary, requarements, town)
-            if vacancy.validate() is True:
-                js_saver = JSONSaver()
-                js_saver.add_vacancy(vacancy)
-                csv_saver = CSVSaver()
-                csv_saver.add_vacancy(vacancy)
-            else:
-                print('Error')
+    keyword = input('Введите поисковой запрос: ')
 
+    # получение вакансий по запросу с API
+    hh_api = HeadHunterAPI()
+    sj_api = SuperJobAPI()
+    hh_vacancies = hh_api.get_vacancies(keyword)
+    sj_vacancies = sj_api.get_vacancies(keyword)
 
+    # приведение к общим ключам вакансий с платформ
+    vacancies_hh = get_vacancies_hh(hh_vacancies)
+    vacancies_sj = get_vacancies_sj(sj_vacancies)
 
+    # добавление вакансий в файл
+    js_saver = JSONSaver()
+    js_saver.add_vacancy(vacancies_hh)
+    js_saver.add_vacancy(vacancies_sj)
 
+    # открытие файла на чтение
+    with open('../src/vacancy.json', 'r', encoding='utf-8') as f:
+        list_vacancy = json.load(f)
+
+    # создание списка с объектами класса
+        vacancies = [Vacancy(
+                title=v['title'],
+                link=v['link'],
+                salary=v['salary'] if v.get('salary') else 0,
+                requirements=v['requirements'],
+                town=v['town'])
+                for v in list_vacancy]
+
+    # взаимодействие с пользователем
+        top_num = int(input('Введите количество вакансий для вывода в топ: '))
+        filter_words = input('''Введите название города для поиска вакансии: ''').split()
+        filter_vacancies = filtered_vacancies(vacancies, filter_words)
+        if not filter_vacancies:
+            print("Нет вакансий, соответствующих заданным критериям")
+
+    # вывод результата
+        sort_vacancies = sorted_vacancies(filter_vacancies)
+        top_vacancy = top_vacancies(sort_vacancies, top_num)
+        printing = print_vacancies(top_vacancy)
+
+    # очистка файла
+    js_saver.clear_data()
 
 
 main()

@@ -2,13 +2,14 @@ from abc import ABC, abstractmethod
 from src.vacancy import Vacancy
 import json
 import csv
-from src.error import DeleteError, GetError, AddError
+from src.error import DeleteError, GetError
 
 
 class FileSaver(ABC):
     """
     Абстрактный класс для работы с вакансиями
     """
+
     @abstractmethod
     def add_vacancy(self, vacancy: Vacancy) -> None:
         """
@@ -33,6 +34,14 @@ class FileSaver(ABC):
         pass
 
 
+    @abstractmethod
+    def clear_data(self):
+        """
+        Очистка файла
+        """
+        pass
+
+
 class JSONSaver(FileSaver):
     """
     Класс для работы с вакансиями в формате JSON
@@ -41,7 +50,6 @@ class JSONSaver(FileSaver):
     def __init__(self, path='../src/vacancy.json') -> None:
         """
         Инициализация объекта класса
-        :param path: путь к файлу JSON
         """
         self.__path = path
         # пустой список, в который записываем вакансии
@@ -58,29 +66,18 @@ class JSONSaver(FileSaver):
         return self.__path
 
 
-    def add_vacancy(self, vacancy: Vacancy) -> None:
-        """
-        Добавление вакансии в файл JSON
-        """
-        obj_vacancy = {
-                'title': vacancy.title,
-                'link': vacancy.link,
-                'salary': vacancy.salary,
-                'requirements': vacancy.requirements,
-                'town': vacancy.town
-            }
+    def add_vacancy(self, item: list[dict]) -> None:
+
         # если вакансии нет в файле, добавляем
-        if obj_vacancy not in self.list_vacancy:
-            self.list_vacancy.append(obj_vacancy)
-            with open(self.__path, 'w', encoding='utf-8') as f:
-                json.dump(self.list_vacancy, f, indent=4, ensure_ascii=False)
-        raise AddError("Вакансия уже есть в файле")
+        for i in item:
+            if i not in self.list_vacancy:
+                self.list_vacancy.append(i)
+                with open(self.__path, 'w', encoding='utf-8') as f:
+                    json.dump(self.list_vacancy, f, indent=4, ensure_ascii=False)
 
 
     def get_vacancy(self, parameter: str) -> [dict]:
-        """
-        Получение информации о вакансии по критерию
-        """
+
         result = []
         for vacancy in self.list_vacancy:
             # проверка существования параметра
@@ -96,23 +93,27 @@ class JSONSaver(FileSaver):
 
 
     def delete_vacancy(self, vacancy: Vacancy) -> None:
-        """
-        Удаление вакансии
-        """
+
         deleted = False
         for i, v in enumerate(self.list_vacancy):
+            for vac in vacancy:
             # если есть полное совпадение передаваемого объекта со словарем в файле,
             # происходит его удаление
-            if v['title'] == vacancy.title and v['link'] == vacancy.link \
-                    and v['salary'] == vacancy.salary and v['requirements'] == vacancy.requirements \
-                    and v['town'] == vacancy.town:
-                # удаление словаря с данными вакансии
-                del self.list_vacancy[i]
-                deleted = True
-                with open(self.__path, 'w', encoding='utf-8') as f:
-                    json.dump(self.list_vacancy, f, indent=4, ensure_ascii=False)
+                if v['title'] == vac['title'] and v['link'] == vac['link'] \
+                        and v['salary'] == vac['salary'] and v['requirements'] == vac['requirements'] \
+                        and v['town'] == vac['town']:
+                    # удаление словаря с данными вакансии
+                    del self.list_vacancy[i]
+                    deleted = True
+                    with open(self.__path, 'w', encoding='utf-8') as f:
+                        json.dump(self.list_vacancy, f, indent=4, ensure_ascii=False)
         if not deleted:
             raise DeleteError('Нельзя удалить, этой вакансии нет в файле')
+
+
+    def clear_data(self):
+        with open(self.__path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps([]))
 
 
 class CSVSaver(FileSaver):
@@ -123,7 +124,6 @@ class CSVSaver(FileSaver):
     def __init__(self, path='../src/vacancy.csv') -> None:
         """
         Инициализация объекта класса
-        :param path: путь к файлу JSON
         """
 
         self.__path = path
@@ -134,46 +134,34 @@ class CSVSaver(FileSaver):
         return self.__path
 
 
-    def add_vacancy(self, vacancy: Vacancy) -> None:
-        """
-        Добавление вакансии в файл CSV
-        """
-        obj_vacancy = {
-            'title': vacancy.title,
-            'link': vacancy.link,
-            'salary': vacancy.salary,
-            'requirements': vacancy.requirements,
-            'town': vacancy.town
-        }
+    def add_vacancy(self, item: list[dict]) -> None:
 
         with open(self.__path, mode='r', encoding='utf-8') as f:
             file_reader = csv.DictReader(f, delimiter=",")
             rows = [row for row in file_reader]
             # проверка отсутствия вакансии в файле
-            if obj_vacancy not in rows:
-                with open(self.__path, mode='a', encoding='utf-8') as f_w:
-                    file_writer = csv.writer(f_w, delimiter=',', lineterminator='\r')
-                    if f_w.tell() == 0:
-                        file_writer.writerow(['title', 'link', 'salary', 'requirements', 'town'])
-                    file_writer.writerow([vacancy.title, vacancy.link,
-                                          vacancy.salary, vacancy.requirements, vacancy.town])
-            raise AddError("Такая вакансия уже есть в файле")
+            for i in item:
+                if i not in rows:
+                    with open(self.__path, mode='a', encoding='utf-8') as f_w:
+                        file_writer = csv.writer(f_w, delimiter=',', lineterminator='\r')
+                        if f_w.tell() == 0:
+                            file_writer.writerow(['title', 'link', 'salary', 'requirements', 'town'])
+                        file_writer.writerow([i['title'], i['link'],
+                                              i['salary'], i['requirements'], i['town']])
 
 
     def get_vacancy(self, parameter: str) -> [dict]:
-        """
-        Получение информации о вакансии по критерию
-        """
+
         result = []
         with open(self.__path, mode='r', encoding='utf-8') as f:
             file_reader = csv.DictReader(f, delimiter=",")
             # проверка существования параметра
             for vacancy in file_reader:
                 if parameter in [vacancy['title'],
-                                vacancy['link'],
-                                vacancy['salary'],
-                                vacancy['requirements'],
-                                vacancy['town']]:
+                                 vacancy['link'],
+                                 vacancy['salary'],
+                                 vacancy['requirements'],
+                                 vacancy['town']]:
                     result.append(vacancy)
             if not result:
                 raise GetError('Вакансий с таким ключевым параметром нет в файле')
@@ -181,23 +169,23 @@ class CSVSaver(FileSaver):
 
 
     def delete_vacancy(self, vacancy: Vacancy) -> None:
-        """
-        Удаление вакансии
-        """
+
         deleted = False
         with open(self.__path, mode='r', encoding='utf-8') as f:
             file_reader = csv.DictReader(f, delimiter=",")
             rows = [row for row in file_reader]
         for row in rows:
+            for v in vacancy:
             # если есть полное совпадение передаваемого объекта со словарем в файле,
             # происходит его удаление
-            if row['title'] == vacancy.title and row['link'] == vacancy.link \
-                    and row['salary'] == vacancy.salary \
-                    and row['requirements'] == vacancy.requirements and row['town'] == vacancy.town:
-                # удаление объекта
-                rows.remove(row)
-                deleted = True
-                break
+                if row['title'] == v['title'] and row['link'] == v['link'] \
+                        and row['salary'] == v['salary'] \
+                        and row['requirements'] == v['requirements'] \
+                        and row['town'] == v['town']:
+                    # удаление объекта
+                    rows.remove(row)
+                    deleted = True
+                    break
         if deleted:
             with open(self.__path, mode='w', encoding='utf-8', newline='') as f:
                 if f.tell() == 0:
@@ -207,3 +195,13 @@ class CSVSaver(FileSaver):
                 file_writer.writerows(rows)
         else:
             raise DeleteError('Нельзя удалить, этой вакансии нет в файле')
+
+
+    def clear_data(self):
+        with open(self.__path, mode='w', encoding='utf-8', newline='') as f:
+            if f.tell() == 0:
+                fieldnames = ['title', 'link', 'salary', 'requirements', 'town']
+            file_writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=',', lineterminator='\r')
+            file_writer.writeheader()
+            file_writer.writerows([])
+

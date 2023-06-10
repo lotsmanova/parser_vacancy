@@ -1,7 +1,5 @@
-import json
 from abc import ABC, abstractmethod
 import requests
-
 
 class VacancyAPI(ABC):
     """
@@ -40,7 +38,7 @@ class HeadHunterAPI(VacancyAPI):
         :return: None
         """
 
-        # делаем запрос к API
+        # запрос к API
         url = f'{self.__base_url}?text={keyword}'
         response = requests.get(url)
 
@@ -90,4 +88,3 @@ class SuperJobAPI(VacancyAPI):
             return vacancies
         else:
             print(f'Ошибка при выполнении запроса: {response.status_code}')
-
