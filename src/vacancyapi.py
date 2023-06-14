@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import requests
-
+import os
 class VacancyAPI(ABC):
     """
     Абстрактный класс для
@@ -59,10 +59,9 @@ class SuperJobAPI(VacancyAPI):
         """
         Инициализация объекта класса
         """
+        self.api_key =  os.environ.get('API_KEY_SUPERJOB')
         self.__base_url = url
-        self.__headers = {
-        'X-Api-App-Id': 'v3.r.137595387.3b45cea28efc091e14131b2b7a5dd6b79ba08e14.e9f7b295caf7527e945323cee11e7bb4e80eb9f3'
-        }
+        self.__headers = {'X-Api-App-Id': self.api_key}
 
 
     @property
@@ -88,3 +87,4 @@ class SuperJobAPI(VacancyAPI):
             return vacancies
         else:
             print(f'Ошибка при выполнении запроса: {response.status_code}')
+
