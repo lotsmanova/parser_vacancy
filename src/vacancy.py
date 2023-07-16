@@ -4,7 +4,7 @@ class Vacancy:
     """
     __slots__ = ('__title', '__link', '__salary', '__requirements', '__town')
 
-    def __init__(self, title, link, salary, requirements, town):
+    def __init__(self, title: str, link: str, salary: int, requirements: str, town: str) -> None:
         # название вакансии
         self.title = title
         # ссылка на вакансию
@@ -17,7 +17,7 @@ class Vacancy:
         self.town = town
 
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Vacancy) -> bool:
         """
         Сравнение вакансий по зарплате:
         объект 1 < 2
@@ -29,7 +29,7 @@ class Vacancy:
         return self.salary < other.salary
 
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: Vacancy) -> bool:
         """
         Сравнение вакансий по зарплате:
         объект 1 > 2
@@ -38,34 +38,37 @@ class Vacancy:
 
 
     @property
-    def title(self):
+    def title(self) -> str:
         return self.__title
 
 
     @title.setter
-    def title(self, value):
+    def title(self, value: str) -> None:
+        """Проверка валидности названия вакансии"""
         if isinstance(value, str):
             self.__title = value
 
 
     @property
-    def link(self):
+    def link(self) -> str:
         return self.__link
 
 
     @link.setter
-    def link(self, value):
+    def link(self, value: str) -> None:
+        """Проверка валидности ссылки вакансии"""
         if isinstance(value, str) and value.startswith('http'):
             self.__link = value
 
 
     @property
-    def salary(self):
+    def salary(self) -> int:
         return self.__salary
 
 
     @salary.setter
-    def salary(self, value):
+    def salary(self, value: int) -> None:
+        """Проверка валидности зарплаты вакансии"""
         if isinstance(value, int):
             self.__salary = value
         if value == 'null' or value == '0':
@@ -73,22 +76,24 @@ class Vacancy:
 
 
     @property
-    def requirements(self):
+    def requirements(self) -> str:
         return self.__requirements
 
 
     @requirements.setter
-    def requirements(self, value):
+    def requirements(self, value: str) -> None:
+        """Проверка валидности требований вакансии"""
         if isinstance(value, str):
             self.__requirements = value
 
 
     @property
-    def town(self):
+    def town(self) -> str:
         return self.__town
 
 
     @town.setter
-    def town(self, value):
+    def town(self, value: str) -> None:
+        """Проверка валидности города вакансии"""
         if isinstance(value, str):
             self.__town = value

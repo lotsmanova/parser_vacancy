@@ -1,7 +1,7 @@
 from src.vacancy import Vacancy
 
 
-def get_vacancies_hh(vacancy: list[dict]):
+def get_vacancies_hh(vacancy: list[dict]) -> list[dict]:
     """
     Форматирование объектов hh.ru
     """
@@ -15,7 +15,7 @@ def get_vacancies_hh(vacancy: list[dict]):
     return obj_vacancy
 
 
-def get_vacancies_sj(vacancy: list[dict]):
+def get_vacancies_sj(vacancy: list[dict]) -> list[dict]:
     """
     Форматирование объектов SuperJob
     """
@@ -38,7 +38,7 @@ def top_vacancies(vacancy: list[Vacancy], num: int) -> list[Vacancy]:
 
 def filtered_vacancies(vacancy: list[Vacancy], list_param: list) -> list[Vacancy]:
     """
-    Фильтрация вакансий по ключевым словам
+    Фильтрация вакансий по городу
     """
     res = []
     for v in vacancy:

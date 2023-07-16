@@ -52,6 +52,7 @@ class JSONSaver(FileSaver):
         Инициализация объекта класса
         """
         self.__path = path
+
         # пустой список, в который записываем вакансии
         self.list_vacancy = []
         try:
@@ -62,7 +63,7 @@ class JSONSaver(FileSaver):
 
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.__path
 
 
@@ -111,7 +112,7 @@ class JSONSaver(FileSaver):
             raise DeleteError('Нельзя удалить, этой вакансии нет в файле')
 
 
-    def clear_data(self):
+    def clear_data(self) -> None:
         with open(self.__path, 'w', encoding='utf-8') as f:
             f.write(json.dumps([]))
 
@@ -130,7 +131,7 @@ class CSVSaver(FileSaver):
 
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.__path
 
 
@@ -197,7 +198,7 @@ class CSVSaver(FileSaver):
             raise DeleteError('Нельзя удалить, этой вакансии нет в файле')
 
 
-    def clear_data(self):
+    def clear_data(self) -> None:
         with open(self.__path, mode='w', encoding='utf-8', newline='') as f:
             if f.tell() == 0:
                 fieldnames = ['title', 'link', 'salary', 'requirements', 'town']
