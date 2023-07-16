@@ -17,7 +17,7 @@ class Vacancy:
         self.town = town
 
 
-    def __lt__(self, other: Vacancy) -> bool:
+    def __lt__(self, other) -> bool:
         """
         Сравнение вакансий по зарплате:
         объект 1 < 2
@@ -29,7 +29,7 @@ class Vacancy:
         return self.salary < other.salary
 
 
-    def __gt__(self, other: Vacancy) -> bool:
+    def __gt__(self, other) -> bool:
         """
         Сравнение вакансий по зарплате:
         объект 1 > 2
