@@ -18,5 +18,5 @@ def test_comparison_by_salary():
     v2 = Vacancy('Python-developer', 'https://hh.ru/vacancy/123456', 200000, 'Опыт от 3х лет...', 'Москва')
     lt = v1 < v2
     gt = v1 > v2
-    assert lt == True
-    assert gt == False
+    assert lt is True
+    assert gt is False
