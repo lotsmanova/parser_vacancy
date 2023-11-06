@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv('../.env')
+
+
 class VacancyAPI(ABC):
     """
     Абстрактный класс для
@@ -61,7 +66,7 @@ class SuperJobAPI(VacancyAPI):
         Инициализация объекта класса
         """
 
-        self.api_key = os.environ.get('API_KEY_SUPERJOB')
+        self.api_key = os.getenv('API_KEY_SUPERJOB')
         self.__base_url = url
         self.__headers = {'X-Api-App-Id': self.api_key}
 
