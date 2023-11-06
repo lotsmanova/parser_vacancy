@@ -49,7 +49,7 @@ def main():
         printing = print_vacancies(top_vacancy)
 
     # очистка файла
-    js_saver.clear_data()
+    # js_saver.clear_data()
 
 
 main()
